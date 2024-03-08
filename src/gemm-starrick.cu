@@ -12,6 +12,7 @@ template <typename Config>
 __global__ void gemm_multi_stage(void *Dptr, const void *Aptr, const void *Bptr, int m, int n, int k) {
     using namespace cute;
 
+    using T = typename Config::T;
     // 从Config中获取信息
     using SmemLayoutA = typename Config::SmemLayoutA;
     using SmemLayoutB = typename Config::SmemLayoutB;
@@ -264,9 +265,9 @@ struct GemmConfig {
     
     using MMA = TiledMMA<
         mma_atom,
-        Layout<Shape<Int<kMmaEURepeatM>{}, Int<kMmaEURepeatN>{}, Int<kMmaEURepeatK>>>,
+        Layout<Shape<Int<kMmaEURepeatM>, Int<kMmaEURepeatN>, Int<kMmaEURepeatK>>>,
         Tile<Int<kMmaPM>, Int<kMmaPN>, Int<kMmaPK>>
-        >
+        >;
 
     // TileCopy 配置
 
@@ -284,7 +285,7 @@ struct GemmConfig {
 
     // ldmatrix 配置
 
-    using s2r_copy_op = SM75_U32x4_LDSM_N // 选择ldmatrix指令的x4模式。形成Atom抽象
+    using s2r_copy_op = SM75_U32x4_LDSM_N; // 选择ldmatrix指令的x4模式。形成Atom抽象
     using s2r_copy_traits = Copy_Traits<s2r_copy_op>;
     using s2r_copy_atom = Copy_Atom<s2r_copy_traits, T>;
     
@@ -301,7 +302,7 @@ struct GemmConfig {
 
     static_assert(size<0>(SmemLayoutA{}) * size<1>(SmemLayoutA{}) >=
                     size(SmemLayoutC{}),
-                 "C shared memory request is large than A's one pipe")
+                 "C shared memory request is large than A's one pipe");
 
     using R2SCopyAtomC = Copy_Atom<UniversalCopy<int>, T>;
     using S2GCopyAtomC = Copy_Atom<UniversalCopy<cute::uint128_t>, T>;
@@ -323,7 +324,6 @@ struct GemmConfig {
 int main(int argc, char *argv[]) {
     using T = cute::half_t;
     using namespace cute;
-    using X = Underscore;
 
     srand(10086);
 
