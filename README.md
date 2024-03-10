@@ -29,3 +29,7 @@ https://zhuanlan.zhihu.com/p/675308830
 Cutlass3.4 之后参数输入的变化
 
 https://github.com/NVIDIA/cutlass/discussions/1345
+
+开发 CUDA 内核将张量核心推向 NVIDIA A100 的绝对极限（ldmatrix等更好的图示）
+
+https://www.nvidia.com/en-us/on-demand/session/gtcsj20-s21745/
